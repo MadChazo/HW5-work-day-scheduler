@@ -1,23 +1,62 @@
-// Wrap all code that interacts with the DOM in a call to jQuery to ensure that
-// the code isn't run until the browser has finished rendering all the elements
-// in the html.
+// Wraps all code in JQuery call
 $(function () {
-  // TODO: Add a listener for click events on the save button. This code should
-  // use the id in the containing time-block as a key to save the user input in
-  // local storage. HINT: What does `this` reference in the click listener
-  // function? How can DOM traversal be used to get the "hour-x" id of the
-  // time-block containing the button that was clicked? How might the id be
-  // useful when saving the description in local storage?
-  //
-  // TODO: Add code to apply the past, present, or future class to each time
-  // block by comparing the id to the current hour. HINTS: How can the id
-  // attribute of each time-block be used to conditionally add or remove the
-  // past, present, and future classes? How can Day.js be used to get the
-  // current hour in 24-hour time?
-  //
-  // TODO: Add code to get any user input that was saved in localStorage and set
-  // the values of the corresponding textarea elements. HINT: How can the id
-  // attribute of each time-block be used to do this?
-  //
-  // TODO: Add code to display the current date in the header of the page.
+  // HTML element variables
+  var currentDay = $("#currentDay");
+  var saveBtn = $(".saveBtn");
+  var clearBtn = $("#clearBtn");
+  // Day.js variable
+  var today = dayjs();
+  // Saved event storage variable
+  var savedEvents = JSON.parse(localStorage.getItem("savedEvents")) || [
+    { time: "hour-9", desc: "" },
+    { time: "hour-10", desc: "" },
+    { time: "hour-11", desc: "" },
+    { time: "hour-12", desc: "" },
+    { time: "hour-13", desc: "" },
+    { time: "hour-14", desc: "" },
+    { time: "hour-15", desc: "" },
+    { time: "hour-16", desc: "" },
+    { time: "hour-17", desc: "" },
+  ];
+
+  // Clears local storage and reloads page
+  function clearHandler() {
+    localStorage.clear();
+    location.reload();
+  }
+
+  // Saves scheduled events
+  function saveHandler(event) {
+    var hour = $(event.target).parents(".time-block").eq(0).attr("id");
+    var saveEvent = $("#" + hour)
+      .children(".description")
+      .val();
+    var index = hour.split("-")[1] - 9;
+    savedEvents[index].desc = saveEvent;
+    localStorage.setItem("savedEvents", JSON.stringify(savedEvents));
+  }
+
+  // Adds saved events back to schedule on each reload
+  // Checks time and changes class of div accordingly to past, present, or future
+  for (let i = 0; i < 9; i++) {
+    var workingEvent = savedEvents[i];
+    var workingBlock = $("#" + workingEvent.time);
+    $(workingBlock).children("textarea").val(workingEvent.desc);
+    var present = parseInt(dayjs().format("H"));
+    var blockNo = parseInt(workingBlock.attr("id").split("-")[1]);
+    if (blockNo == present) {
+      workingBlock.addClass("present");
+    } else if (blockNo > present) {
+      workingBlock.addClass("future");
+    } else {
+      workingBlock.addClass("past");
+    }
+  }
+
+  // Displays the current date in the header of the page.
+  currentDay.text(today.format("dddd, MMMM D"));
+
+  // Event listeners for buttons
+  clearBtn.on("click", clearHandler);
+  saveBtn.on("click", saveHandler);
 });

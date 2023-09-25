@@ -43,10 +43,10 @@ $(function () {
     var workingBlock = $("#" + workingEvent.time);
     $(workingBlock).children("textarea").val(workingEvent.desc);
     var present = parseInt(dayjs().format("H"));
-    var blockNo = parseInt(workingBlock.attr("id").split("-")[1]);
-    if (blockNo == present) {
+    var blockNum = parseInt(workingBlock.attr("id").split("-")[1]);
+    if (blockNum == present) {
       workingBlock.addClass("present");
-    } else if (blockNo > present) {
+    } else if (blockNum > present) {
       workingBlock.addClass("future");
     } else {
       workingBlock.addClass("past");
